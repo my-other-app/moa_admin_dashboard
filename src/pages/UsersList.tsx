@@ -16,10 +16,11 @@ import { Search, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
 
 export function UsersList() {
     const [page, setPage] = useState(1);
+    const [size, setSize] = useState(10);
     const [search, setSearch] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
 
-    const { data, isLoading, isError } = useUsers(page, 20, debouncedSearch);
+    const { data, isLoading, isError } = useUsers(page, size, debouncedSearch);
 
     // Debounce search input to avoid spamming the API
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -152,28 +153,45 @@ export function UsersList() {
 
             {/* Pagination Controls */}
             {data && (
-                <div className="flex items-center justify-end space-x-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setPage((p) => Math.max(1, p - 1))}
-                        disabled={page === 1}
-                    >
-                        <ChevronLeft className="h-4 w-4 mr-1" />
-                        Previous
-                    </Button>
-                    <div className="text-sm font-medium">
-                        Page {page} of {data.pages}
+                <div className="flex items-center justify-between mt-4">
+                    <div className="flex items-center space-x-2 text-sm text-muted-foreground ml-2">
+                        <span>Rows per page:</span>
+                        <select
+                            className="h-8 w-16 rounded-md border border-input bg-background px-2 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            value={size}
+                            onChange={(e) => {
+                                setSize(Number(e.target.value));
+                                setPage(1);
+                            }}
+                        >
+                            <option value={10}>10</option>
+                            <option value={20}>20</option>
+                            <option value={50}>50</option>
+                        </select>
                     </div>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setPage((p) => Math.min(data.pages, p + 1))}
-                        disabled={page >= data.pages}
-                    >
-                        Next
-                        <ChevronRight className="h-4 w-4 ml-1" />
-                    </Button>
+                    <div className="flex items-center justify-end space-x-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setPage((p) => Math.max(1, p - 1))}
+                            disabled={page === 1}
+                        >
+                            <ChevronLeft className="h-4 w-4 mr-1" />
+                            Previous
+                        </Button>
+                        <div className="text-sm font-medium">
+                            Page {page} of {data.pages}
+                        </div>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setPage((p) => Math.min(data.pages, p + 1))}
+                            disabled={page >= data.pages}
+                        >
+                            Next
+                            <ChevronRight className="h-4 w-4 ml-1" />
+                        </Button>
+                    </div>
                 </div>
             )}
         </div>
