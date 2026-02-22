@@ -41,8 +41,8 @@ export function UsersList() {
     };
 
     return (
-        <div className="space-y-4 md:space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col h-[calc(100vh-200px)] space-y-4 md:space-y-6">
+            <div className="flex-none flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex flex-col">
                     <h2 className="bebas text-[28px] md:text-[32px] lg:text-[40px] tracking-wide text-black">User Management</h2>
                     <p className="text-sm md:text-base text-gray-600 mt-1">
@@ -51,7 +51,7 @@ export function UsersList() {
                 </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex-none flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <form onSubmit={handleSearchSubmit} className="relative w-full sm:w-72">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -64,8 +64,8 @@ export function UsersList() {
                 </form>
             </div>
 
-            <div className="rounded-md border bg-card overflow-hidden">
-                <div className="overflow-auto max-h-[calc(100vh-10vh)]">
+            <div className="flex-1 flex flex-col rounded-md border bg-card overflow-hidden min-h-0">
+                <div className="flex-1 overflow-auto">
                     <Table className="min-w-[800px]">
                         <TableHeader className="sticky top-0 bg-secondary z-10 shadow-sm">
                             <TableRow>
@@ -153,7 +153,7 @@ export function UsersList() {
                 </div>
                 {/* Pagination Controls */}
                 {data && (
-                    <div className="flex items-center justify-between mt-4">
+                    <div className="flex-none border-t bg-card p-4 flex items-center justify-between">
                         <div className="flex items-center space-x-2 text-sm text-muted-foreground ml-2">
                             <span>Rows per page:</span>
                             <select
