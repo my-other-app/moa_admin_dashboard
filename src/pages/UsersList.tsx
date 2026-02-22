@@ -151,7 +151,7 @@ export function UsersList() {
             </div>
 
             {/* Pagination Controls */}
-            {data && data.pages > 1 && (
+            {data && (
                 <div className="flex items-center justify-end space-x-2">
                     <Button
                         variant="outline"
