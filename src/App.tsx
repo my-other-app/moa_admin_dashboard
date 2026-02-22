@@ -1,11 +1,13 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { DashboardHub } from "@/pages/DashboardHub"
 import { UsersList } from "@/pages/UsersList"
 import { ClubsList } from "@/pages/ClubsList"
 import { EventsList } from "@/pages/EventsList"
 import { Settings } from "@/pages/Settings"
+import { Login } from "@/pages/Login"
 
 const queryClient = new QueryClient()
 
@@ -13,15 +15,42 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <DashboardLayout>
-          <Routes>
-            <Route path="/" element={<DashboardHub />} />
-            <Route path="/users" element={<UsersList />} />
-            <Route path="/clubs" element={<ClubsList />} />
-            <Route path="/events" element={<EventsList />} />
-            <Route path="/settings" element={<Settings />} />
-          </Routes>
-        </DashboardLayout>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<Login />} />
+
+          {/* Protected Admin Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={
+              <DashboardLayout>
+                <DashboardHub />
+              </DashboardLayout>
+            } />
+            <Route path="/users" element={
+              <DashboardLayout>
+                <UsersList />
+              </DashboardLayout>
+            } />
+            <Route path="/clubs" element={
+              <DashboardLayout>
+                <ClubsList />
+              </DashboardLayout>
+            } />
+            <Route path="/events" element={
+              <DashboardLayout>
+                <EventsList />
+              </DashboardLayout>
+            } />
+            <Route path="/settings" element={
+              <DashboardLayout>
+                <Settings />
+              </DashboardLayout>
+            } />
+          </Route>
+
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </Router>
     </QueryClientProvider>
   )

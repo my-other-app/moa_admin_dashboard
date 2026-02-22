@@ -39,9 +39,9 @@ export function ClubsList() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                    <h2 className="text-2xl font-bold tracking-tight">Club Directory</h2>
-                    <p className="text-muted-foreground">
+                <div className="flex flex-col mb-2">
+                    <h2 className="bebas text-[32px] md:text-[40px] tracking-wide text-black">Club Directory</h2>
+                    <p className="text-gray-600 mt-1">
                         View, approve, and manage organizations across the MOA ecosystem.
                     </p>
                 </div>
@@ -99,8 +99,8 @@ export function ClubsList() {
                                     <TableCell className="max-w-[300px] truncate" title={club.description}>{club.description || "N/A"}</TableCell>
                                     <TableCell>
                                         <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${club.status === "pending" ? "border-yellow-500 text-yellow-600" :
-                                                club.status === "approved" || club.is_verified ? "border-green-500 text-green-600" :
-                                                    "border-muted text-muted-foreground"
+                                            club.status === "approved" || club.is_verified ? "border-green-500 text-green-600" :
+                                                "border-muted text-muted-foreground"
                                             }`}>
                                             {(club.status || (club.is_verified ? "approved" : "pending")).toUpperCase()}
                                         </span>

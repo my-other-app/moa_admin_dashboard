@@ -38,9 +38,9 @@ export function EventsList() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                    <h2 className="text-2xl font-bold tracking-tight">Events Moderation</h2>
-                    <p className="text-muted-foreground">
+                <div className="flex flex-col mb-2">
+                    <h2 className="bebas text-[32px] md:text-[40px] tracking-wide text-black">Events Moderation</h2>
+                    <p className="text-gray-600 mt-1">
                         Monitor and manage all upcoming, live, and past events.
                     </p>
                 </div>
@@ -108,8 +108,8 @@ export function EventsList() {
                                     </TableCell>
                                     <TableCell>
                                         <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${event.status === "published" ? "border-green-500 text-green-600" :
-                                                event.status === "cancelled" ? "border-red-500 text-red-600" :
-                                                    "border-muted text-muted-foreground"
+                                            event.status === "cancelled" ? "border-red-500 text-red-600" :
+                                                "border-muted text-muted-foreground"
                                             }`}>
                                             {event.status.toUpperCase()}
                                         </span>

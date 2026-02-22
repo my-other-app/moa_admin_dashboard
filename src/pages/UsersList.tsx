@@ -10,6 +10,8 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Search, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 
 export function UsersList() {
@@ -40,9 +42,9 @@ export function UsersList() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                    <h2 className="text-2xl font-bold tracking-tight">User Management</h2>
-                    <p className="text-muted-foreground">
+                <div className="flex flex-col mb-2">
+                    <h2 className="bebas text-[32px] md:text-[40px] tracking-wide text-black">User Management</h2>
+                    <p className="text-gray-600 mt-1">
                         Search, filter, and manage all users registered on the platform.
                     </p>
                 </div>
@@ -66,10 +68,10 @@ export function UsersList() {
                     <TableHeader>
                         <TableRow>
                             <TableHead>User ID</TableHead>
-                            <TableHead>Full Name</TableHead>
-                            <TableHead>Email</TableHead>
+                            <TableHead>Profile</TableHead>
                             <TableHead>Provider</TableHead>
                             <TableHead>Joined Date</TableHead>
+                            <TableHead>Interests</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -96,15 +98,45 @@ export function UsersList() {
                             data?.items?.map((user) => (
                                 <TableRow key={user.id}>
                                     <TableCell className="font-medium">#{user.id}</TableCell>
-                                    <TableCell>{user.full_name}</TableCell>
-                                    <TableCell>{user.email}</TableCell>
+                                    <TableCell>
+                                        <div className="flex items-center gap-3">
+                                            <Avatar className="h-9 w-9">
+                                                <AvatarImage src={user.profile?.avatar?.image?.thumbnail || user.profile?.profile_pic?.thumbnail} alt={user.full_name} />
+                                                <AvatarFallback>{user.full_name?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
+                                            </Avatar>
+                                            <div className="flex flex-col">
+                                                <span className="font-medium">{user.full_name}</span>
+                                                <span className="text-xs text-muted-foreground">{user.email}</span>
+                                            </div>
+                                        </div>
+                                    </TableCell>
                                     <TableCell>
                                         <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
-                                            {user.auth_provider?.toUpperCase() || "N/A"}
+                                            {user.provider?.toUpperCase() || "APP"}
                                         </span>
                                     </TableCell>
                                     <TableCell>
-                                        {new Date(user.created_at).toLocaleDateString()}
+                                        {user.created_at ? new Date(user.created_at).toLocaleDateString() : "Unknown"}
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex flex-wrap gap-1 max-w-[200px]">
+                                            {user.interests && user.interests.length > 0 ? (
+                                                <>
+                                                    {user.interests.slice(0, 3).map(interest => (
+                                                        <Badge key={interest.id} variant="secondary" className="font-normal text-[10px] px-1.5 py-0 h-5">
+                                                            {interest.icon} {interest.name}
+                                                        </Badge>
+                                                    ))}
+                                                    {user.interests.length > 3 && (
+                                                        <Badge variant="outline" className="font-normal text-[10px] px-1.5 py-0 h-5">
+                                                            +{user.interests.length - 3}
+                                                        </Badge>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <span className="text-muted-foreground text-xs italic">No interests</span>
+                                            )}
+                                        </div>
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <Button variant="ghost" size="icon">

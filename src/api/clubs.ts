@@ -21,13 +21,22 @@ export interface PaginatedClubsResponse {
 
 export const clubsApi = {
     getClubs: async (page = 1, size = 50, search = "", status?: string) => {
-        const params: Record<string, string | number> = { page, size, search };
-        if (status) params.status = status;
-
-        const response = await apiClient.get<PaginatedClubsResponse>("/api/v1/clubs", {
-            params,
+        const response = await apiClient.get<PaginatedClubsResponse>("/api/v1/clubs/admin/list", {
+            params: {
+                offset: (page - 1) * size,
+                limit: size,
+                search,
+                status
+            },
         });
-        return response.data;
+
+        return {
+            items: response.data.items || [],
+            total: response.data.total || response.data.items?.length || 0,
+            page,
+            size,
+            pages: response.data.pages || 1
+        };
     },
 
     approveClub: async (clubId: number) => {

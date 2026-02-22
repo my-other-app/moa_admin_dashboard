@@ -20,14 +20,21 @@ export interface PaginatedEventsResponse {
 
 export const eventsApi = {
     getEvents: async (page = 1, size = 50, search = "") => {
-        const response = await apiClient.get<PaginatedEventsResponse>("/api/v1/events", {
+        const response = await apiClient.get<PaginatedEventsResponse>("/api/v1/events/admin/list", {
             params: {
-                page,
-                size,
-                search,
+                offset: (page - 1) * size,
+                limit: size,
+                search
             },
         });
-        return response.data;
+
+        return {
+            items: response.data.items || [],
+            total: response.data.total || response.data.items?.length || 0,
+            page,
+            size,
+            pages: response.data.pages || 1
+        };
     },
 
     cancelEvent: async (eventId: number) => {

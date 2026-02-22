@@ -1,13 +1,46 @@
 import apiClient from "./client";
 
+export interface UserAvatar {
+    id: number;
+    name: string;
+    image: any | null;
+}
+
+export interface UserOrganization {
+    id: number;
+    name: string;
+    type: string;
+    is_verified: boolean;
+    logo: any | null;
+}
+
+export interface UserProfileDetail {
+    full_name: string;
+    whatsapp: string | null;
+    org: UserOrganization | null;
+    avatar: UserAvatar | null;
+    profile_pic: any | null;
+}
+
+export interface UserInterest {
+    id: number;
+    name: string;
+    icon: string | null;
+    icon_type: string | null;
+}
+
 export interface User {
     id: number;
     email: string;
     full_name: string;
-    auth_provider: string;
-    organization_id?: number | null;
+    username: string;
+    user_type: string;
+    phone: string | null;
+    provider: string | null;
     created_at: string;
     updated_at: string;
+    profile?: UserProfileDetail | null;
+    interests?: UserInterest[] | null;
 }
 
 export interface PaginatedUsersResponse {

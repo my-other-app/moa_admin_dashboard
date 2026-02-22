@@ -18,4 +18,9 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    host: true,
+    port: 5173,
+    strictPort: true, // Will fail if port 5173 is in use, enforcing the exact backend CORS mapping
+  },
 })
