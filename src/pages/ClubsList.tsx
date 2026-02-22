@@ -10,6 +10,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { Search, ChevronLeft, ChevronRight, CheckCircle2, ShieldBan } from "lucide-react";
 
 export function ClubsList() {
@@ -69,25 +70,26 @@ export function ClubsList() {
                             <TableHead>Description</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Created</TableHead>
+                            <TableHead>Interests</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {isLoading ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
+                                <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
                                     Loading clubs...
                                 </TableCell>
                             </TableRow>
                         ) : isError ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="text-center py-10 text-destructive">
+                                <TableCell colSpan={7} className="text-center py-10 text-destructive">
                                     Error loading club data. Please try again.
                                 </TableCell>
                             </TableRow>
                         ) : data?.items?.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
+                                <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
                                     No clubs found matching "{debouncedSearch}"
                                 </TableCell>
                             </TableRow>
@@ -96,7 +98,7 @@ export function ClubsList() {
                                 <TableRow key={club.id}>
                                     <TableCell className="font-medium">#{club.id}</TableCell>
                                     <TableCell className="max-w-[200px] truncate">{club.name}</TableCell>
-                                    <TableCell className="max-w-[300px] truncate" title={club.description}>{club.description || "N/A"}</TableCell>
+                                    <TableCell className="max-w-[300px] truncate" title={club.about}>{club.about || "N/A"}</TableCell>
                                     <TableCell>
                                         <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${club.status === "pending" ? "border-yellow-500 text-yellow-600" :
                                             club.status === "approved" || club.is_verified ? "border-green-500 text-green-600" :
@@ -106,7 +108,27 @@ export function ClubsList() {
                                         </span>
                                     </TableCell>
                                     <TableCell>
-                                        {new Date(club.created_at).toLocaleDateString()}
+                                        {club.created_at ? new Date(club.created_at).toLocaleDateString() : "N/A"}
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex flex-wrap gap-1 max-w-[250px]">
+                                            {club.interests && club.interests.length > 0 ? (
+                                                <>
+                                                    {club.interests.slice(0, 3).map((interest) => (
+                                                        <Badge key={interest.id} variant="secondary" className="font-normal text-[10px] px-1.5 py-0 h-5">
+                                                            {interest.name}
+                                                        </Badge>
+                                                    ))}
+                                                    {club.interests.length > 3 && (
+                                                        <Badge variant="outline" className="font-normal text-[10px] px-1.5 py-0 h-5">
+                                                            +{club.interests.length - 3}
+                                                        </Badge>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <span className="text-muted-foreground text-xs italic">No interests</span>
+                                            )}
+                                        </div>
                                     </TableCell>
                                     <TableCell className="text-right space-x-2">
                                         <Button

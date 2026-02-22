@@ -3,12 +3,13 @@ import apiClient from "./client";
 export interface Club {
     id: number;
     name: string;
-    description: string;
+    about?: string;
     owner_id: number;
     created_at: string;
     // Admin-specific fields
     is_verified?: boolean;
     status?: "pending" | "approved" | "rejected";
+    interests?: { id: number; name: string }[];
 }
 
 export interface PaginatedClubsResponse {
