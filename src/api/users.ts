@@ -20,16 +20,20 @@ export interface PaginatedUsersResponse {
 
 export const usersApi = {
     getUsers: async (page = 1, size = 50, search = "") => {
-        // In a real scenario, this matches the Python FastAPI endpoint:
-        // /api/v1/users/admin/list or similar
-        const response = await apiClient.get<PaginatedUsersResponse>("/api/v1/users", {
+        const response = await apiClient.get<PaginatedUsersResponse>("/api/v1/user/admin/list", {
             params: {
-                page,
-                size,
-                search,
+                offset: (page - 1) * size, // Typical translation of page/size to fastAPI limit/offset
+                limit: size,
+                search
             },
         });
-        return response.data;
+        return {
+            items: response.data.items || [],
+            total: response.data.total || response.data.items?.length || 0,
+            page,
+            size,
+            pages: response.data.pages || 1
+        };
     },
 
     // Example of an admin action
