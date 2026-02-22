@@ -27,12 +27,13 @@ export const usersApi = {
                 search
             },
         });
+        const totalItems = response.data.total || response.data.items?.length || 0;
         return {
             items: response.data.items || [],
-            total: response.data.total || response.data.items?.length || 0,
+            total: totalItems,
             page,
             size,
-            pages: response.data.pages || 1
+            pages: Math.ceil(totalItems / size) || 1
         };
     },
 
