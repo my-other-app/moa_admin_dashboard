@@ -7,7 +7,15 @@ export interface EventInfo {
     event_datetime: string;
     location_name: string;
     status: "published" | "draft" | "cancelled";
-    club_id: number;
+    club: {
+        id: number;
+        name: string;
+        slug: string;
+    };
+    interests?: {
+        id: number;
+        name: string;
+    }[];
 }
 
 export interface PaginatedEventsResponse {

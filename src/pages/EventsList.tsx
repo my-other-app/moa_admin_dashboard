@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useEvents, useCancelEvent } from "@/hooks/useEvents";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
     Table,
     TableBody,
@@ -65,29 +66,30 @@ export function EventsList() {
                         <TableRow>
                             <TableHead>Event ID</TableHead>
                             <TableHead>Event Name</TableHead>
-                            <TableHead>Club ID</TableHead>
+                            <TableHead>Club Name</TableHead>
                             <TableHead>Date / Time</TableHead>
                             <TableHead>Location</TableHead>
                             <TableHead>Status</TableHead>
+                            <TableHead>Interests</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {isLoading ? (
                             <TableRow>
-                                <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
+                                <TableCell colSpan={8} className="text-center py-10 text-muted-foreground">
                                     Loading events...
                                 </TableCell>
                             </TableRow>
                         ) : isError ? (
                             <TableRow>
-                                <TableCell colSpan={7} className="text-center py-10 text-destructive">
+                                <TableCell colSpan={8} className="text-center py-10 text-destructive">
                                     Error loading event data. Please try again.
                                 </TableCell>
                             </TableRow>
                         ) : data?.items?.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
+                                <TableCell colSpan={8} className="text-center py-10 text-muted-foreground">
                                     No events found matching "{debouncedSearch}"
                                 </TableCell>
                             </TableRow>
@@ -96,7 +98,7 @@ export function EventsList() {
                                 <TableRow key={event.id}>
                                     <TableCell className="font-medium">#{event.id}</TableCell>
                                     <TableCell className="max-w-[200px] truncate font-semibold">{event.name}</TableCell>
-                                    <TableCell className="text-muted-foreground">#{event.club_id}</TableCell>
+                                    <TableCell className="text-muted-foreground">{event.club?.name || "N/A"}</TableCell>
                                     <TableCell>
                                         {new Date(event.event_datetime).toLocaleString(undefined, {
                                             dateStyle: 'medium',
@@ -113,6 +115,26 @@ export function EventsList() {
                                             }`}>
                                             {event.status.toUpperCase()}
                                         </span>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex flex-wrap gap-1 max-w-[250px]">
+                                            {event.interests && event.interests.length > 0 ? (
+                                                <>
+                                                    {event.interests.slice(0, 3).map((interest) => (
+                                                        <Badge key={interest.id} variant="secondary" className="font-normal text-[10px] px-1.5 py-0 h-5">
+                                                            {interest.name}
+                                                        </Badge>
+                                                    ))}
+                                                    {event.interests.length > 3 && (
+                                                        <Badge variant="outline" className="font-normal text-[10px] px-1.5 py-0 h-5">
+                                                            +{event.interests.length - 3}
+                                                        </Badge>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <span className="text-muted-foreground text-xs italic">No interests</span>
+                                            )}
+                                        </div>
                                     </TableCell>
                                     <TableCell className="text-right space-x-2">
                                         <Button
