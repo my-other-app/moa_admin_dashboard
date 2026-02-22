@@ -65,9 +65,9 @@ export function UsersList() {
             </div>
 
             <div className="rounded-md border bg-card overflow-hidden">
-                <div className="overflow-x-auto">
+                <div className="overflow-auto max-h-[calc(100vh-260px)]">
                     <Table className="min-w-[800px]">
-                        <TableHeader>
+                        <TableHeader className="sticky top-0 bg-secondary z-10 shadow-sm">
                             <TableRow>
                                 <TableHead>User ID</TableHead>
                                 <TableHead>Profile</TableHead>
