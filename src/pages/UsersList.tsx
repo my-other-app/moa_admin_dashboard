@@ -65,7 +65,7 @@ export function UsersList() {
             </div>
 
             <div className="rounded-md border bg-card overflow-hidden">
-                <div className="overflow-auto max-h-[calc(100vh-260px)]">
+                <div className="overflow-auto max-h-[calc(100vh-10vh)]">
                     <Table className="min-w-[800px]">
                         <TableHeader className="sticky top-0 bg-secondary z-10 shadow-sm">
                             <TableRow>
@@ -74,7 +74,7 @@ export function UsersList() {
                                 <TableHead>Provider</TableHead>
                                 <TableHead>Joined Date</TableHead>
                                 <TableHead>Interests</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
+                                <TableHead className="text-right sticky right-0 bg-secondary z-20 shadow-[-1px_0_0_#e2e8f0]">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -140,7 +140,7 @@ export function UsersList() {
                                                 )}
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-right">
+                                        <TableCell className="text-right sticky right-0 bg-card z-10 shadow-[-1px_0_0_#e2e8f0]">
                                             <Button variant="ghost" size="icon">
                                                 <MoreHorizontal className="h-4 w-4" />
                                             </Button>
