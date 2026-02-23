@@ -3,24 +3,30 @@ import apiClient from "@/api/client";
 
 export interface DashboardStats {
     totalUsers: number;
+    totalUsersDelta: string;
     activeClubs: number;
+    activeClubsDelta: string;
     eventsHosted: number;
+    eventsHostedDelta: string;
     totalRevenue: number;
+    totalRevenueDelta: string;
     revenueData: { name: string; total: number }[];
     userGrowthData: { name: string; users: number }[];
 }
 
 export const fetchDashboardStats = async (): Promise<DashboardStats> => {
-    // 1. Fetch real numerical totals from our new Admin Analytics API
     const response = await apiClient.get("/api/v1/admin/analytics");
     const data = response.data;
 
-    // 2. Return the hybrid payload (Real Backend counts + Mock Charts until Rechart API is built)
     return {
         totalUsers: data.total_users || 0,
+        totalUsersDelta: data.total_users_delta || "+0% from last month",
         activeClubs: data.verified_clubs || 0,
+        activeClubsDelta: data.verified_clubs_delta || "+0 new this week",
         eventsHosted: data.events_hosted || 0,
+        eventsHostedDelta: data.events_hosted_delta || "+0 this month",
         totalRevenue: data.platform_revenue || 0,
+        totalRevenueDelta: data.platform_revenue_delta || "+0% from last month",
         revenueData: [
             { name: "Jan", total: 1500 },
             { name: "Feb", total: 2300 },
@@ -33,15 +39,7 @@ export const fetchDashboardStats = async (): Promise<DashboardStats> => {
             { name: "Sep", total: 8500 },
             { name: "Oct", total: 9400 },
         ],
-        userGrowthData: [
-            { name: "Mon", users: 120 },
-            { name: "Tue", users: 200 },
-            { name: "Wed", users: 150 },
-            { name: "Thu", users: 280 },
-            { name: "Fri", users: 310 },
-            { name: "Sat", users: 450 },
-            { name: "Sun", users: 390 },
-        ],
+        userGrowthData: data.user_growth_data || [],
     };
 };
 

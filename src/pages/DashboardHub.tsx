@@ -23,10 +23,10 @@ export function DashboardHub() {
     }
 
     const statCards = [
-        { title: "Total Users", value: data.totalUsers.toLocaleString(), icon: Users, desc: "+12% from last month" },
-        { title: "Verified Clubs", value: data.activeClubs.toLocaleString(), icon: Building2, desc: "+3 new this week" },
-        { title: "Events Hosted", value: data.eventsHosted.toLocaleString(), icon: CalendarSync, desc: "+48 this month" },
-        { title: "Platform Revenue", value: `₹${data.totalRevenue.toLocaleString()}`, icon: IndianRupee, desc: "+24% from last month" },
+        { title: "Total Users", value: data.totalUsers.toLocaleString(), icon: Users, desc: data.totalUsersDelta },
+        { title: "Verified Clubs", value: data.activeClubs.toLocaleString(), icon: Building2, desc: data.activeClubsDelta },
+        { title: "Events Hosted", value: data.eventsHosted.toLocaleString(), icon: CalendarSync, desc: data.eventsHostedDelta },
+        { title: "Platform Revenue", value: `₹${data.totalRevenue.toLocaleString()}`, icon: IndianRupee, desc: data.totalRevenueDelta },
     ];
 
     return (
@@ -90,8 +90,8 @@ export function DashboardHub() {
 
                 <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm col-span-3">
                     <div className="flex flex-col space-y-1.5 mb-4">
-                        <h3 className="text-sm font-semibold text-gray-700 mb-2">Active Usage Growth</h3>
-                        <p className="text-xs text-gray-500">Daily active users engaging with the platform.</p>
+                        <h3 className="text-sm font-semibold text-gray-700 mb-2">New User Registrations</h3>
+                        <p className="text-xs text-gray-500">Daily users joining the platform over the last 7 days.</p>
                     </div>
                     <div className="h-[300px] w-full mt-4">
                         <ResponsiveContainer width="100%" height="100%">
