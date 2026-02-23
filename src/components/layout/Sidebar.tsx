@@ -1,11 +1,13 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, Building2, CalendarSync, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, Building2, CalendarSync, Settings, LogOut, Briefcase, Image as ImageIcon } from "lucide-react";
 
 const navigation = [
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
     { name: "Users", href: "/users", icon: Users },
     { name: "Clubs", href: "/clubs", icon: Building2 },
     { name: "Events", href: "/events", icon: CalendarSync },
+    { name: "Organizations", href: "/organizations", icon: Briefcase },
+    { name: "Avatars", href: "/avatars", icon: ImageIcon },
     { name: "Settings", href: "/settings", icon: Settings },
 ];
 

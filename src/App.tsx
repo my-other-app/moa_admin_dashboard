@@ -8,6 +8,8 @@ import { ClubsList } from "@/pages/ClubsList"
 import { EventsList } from "@/pages/EventsList"
 import { Settings } from "@/pages/Settings"
 import { Login } from "@/pages/Login"
+import { OrganizationsList } from "@/pages/OrganizationsList"
+import { AvatarsList } from "@/pages/AvatarsList"
 
 const queryClient = new QueryClient()
 
@@ -39,6 +41,16 @@ function App() {
             <Route path="/events" element={
               <DashboardLayout>
                 <EventsList />
+              </DashboardLayout>
+            } />
+            <Route path="/organizations" element={
+              <DashboardLayout>
+                <OrganizationsList />
+              </DashboardLayout>
+            } />
+            <Route path="/avatars" element={
+              <DashboardLayout>
+                <AvatarsList />
               </DashboardLayout>
             } />
             <Route path="/settings" element={
