@@ -21,7 +21,7 @@ export function OrganizationsList() {
     const blockMutation = useBlockOrg();
     const importMutation = useImportOrgs();
 
-    const filteredOrgs = orgs?.filter(org =>
+    const filteredOrgs = orgs?.filter((org: any) =>
         org.name.toLowerCase().includes(search.toLowerCase())
     ) || [];
 
@@ -102,7 +102,7 @@ export function OrganizationsList() {
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                filteredOrgs.map((org) => (
+                                filteredOrgs.map((org: any) => (
                                     <TableRow key={org.id}>
                                         <TableCell className="font-medium">#{org.id}</TableCell>
                                         <TableCell>

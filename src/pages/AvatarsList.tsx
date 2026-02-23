@@ -21,7 +21,7 @@ export function AvatarsList() {
     const updateMutation = useUpdateAvatar();
     const deleteMutation = useDeleteAvatar();
 
-    const filteredAvatars = avatars?.filter(avatar =>
+    const filteredAvatars = avatars?.filter((avatar: any) =>
         avatar.name.toLowerCase().includes(search.toLowerCase())
     ) || [];
 
@@ -122,7 +122,7 @@ export function AvatarsList() {
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                filteredAvatars.map((avatar) => (
+                                filteredAvatars.map((avatar: any) => (
                                     <TableRow key={avatar.id}>
                                         <TableCell className="font-medium">#{avatar.id}</TableCell>
                                         <TableCell>
