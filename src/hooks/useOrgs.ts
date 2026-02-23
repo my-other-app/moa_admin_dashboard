@@ -48,3 +48,11 @@ export function useImportOrgs() {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ["orgs"] }),
     });
 }
+
+export function useOrgAnalytics(id: number | null) {
+    return useQuery({
+        queryKey: ["orgs", "analytics", id],
+        queryFn: () => orgsApi.getOrgAnalytics(id!),
+        enabled: id !== null, // Only fetch when an ID is actually provided (when the modal opens)
+    });
+}

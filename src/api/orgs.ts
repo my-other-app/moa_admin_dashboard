@@ -63,4 +63,9 @@ export const orgsApi = {
         });
         return response.data;
     },
+
+    getOrgAnalytics: async (id: number) => {
+        const response = await apiClient.get(`/api/v1/orgs/admin/${id}/analytics`);
+        return response.data;
+    },
 };

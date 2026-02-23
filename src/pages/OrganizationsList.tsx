@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useOrgs, useDeleteOrg, useBlockOrg, useImportOrgs, useCreateOrg, useUpdateOrg } from "@/hooks/useOrgs";
+import { useOrgs, useDeleteOrg, useBlockOrg, useImportOrgs, useCreateOrg, useUpdateOrg, useOrgAnalytics } from "@/hooks/useOrgs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,7 +11,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, Edit, Trash2, ShieldBan, ShieldCheck, Plus, Upload } from "lucide-react";
+import { Search, Edit, Trash2, ShieldBan, ShieldCheck, Plus, Upload, BarChart } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
@@ -32,6 +32,9 @@ export function OrganizationsList() {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [editForm, setEditForm] = useState<any>(null);
     const [editLogo, setEditLogo] = useState<File | null>(null);
+
+    const [analyticsOrgId, setAnalyticsOrgId] = useState<number | null>(null);
+    const { data: analyticsData, isLoading: isAnalyticsLoading } = useOrgAnalytics(analyticsOrgId);
 
     const filteredOrgs = orgs?.filter((org: any) =>
         org.name.toLowerCase().includes(search.toLowerCase())
@@ -202,6 +205,15 @@ export function OrganizationsList() {
                                             <Button
                                                 variant="outline"
                                                 size="sm"
+                                                className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                                                title="View Analytics"
+                                                onClick={() => setAnalyticsOrgId(org.id)}
+                                            >
+                                                <BarChart className="h-4 w-4" />
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
                                                 className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                                                 title="Edit"
                                                 onClick={() => openEditModal(org)}
@@ -266,6 +278,10 @@ export function OrganizationsList() {
                             <select id="type" className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm" value={addForm.type} onChange={e => setAddForm({ ...addForm, type: e.target.value })}>
                                 <option value="School">School</option>
                                 <option value="College">College</option>
+                                <option value="University">University</option>
+                                <option value="Company">Company</option>
+                                <option value="NGO">NGO</option>
+                                <option value="Community">Community</option>
                                 <option value="Other">Other</option>
                             </select>
                         </div>
@@ -312,6 +328,10 @@ export function OrganizationsList() {
                                 <select id="edit-type" className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm" value={editForm.type} onChange={e => setEditForm({ ...editForm, type: e.target.value })}>
                                     <option value="School">School</option>
                                     <option value="College">College</option>
+                                    <option value="University">University</option>
+                                    <option value="Company">Company</option>
+                                    <option value="NGO">NGO</option>
+                                    <option value="Community">Community</option>
                                     <option value="Other">Other</option>
                                 </select>
                             </div>
@@ -339,6 +359,44 @@ export function OrganizationsList() {
                             </DialogFooter>
                         </form>
                     )}
+                </DialogContent>
+            </Dialog>
+
+            {/* Analytics Modal */}
+            <Dialog open={!!analyticsOrgId} onOpenChange={(open) => !open && setAnalyticsOrgId(null)}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Organization Analytics</DialogTitle>
+                    </DialogHeader>
+                    <div className="py-6">
+                        {isAnalyticsLoading ? (
+                            <div className="text-center py-4 text-muted-foreground animate-pulse">
+                                Loading deeply nested metrics...
+                            </div>
+                        ) : analyticsData ? (
+                            <div className="grid grid-cols-1 gap-4">
+                                <div className="p-4 border rounded-lg bg-gray-50 flex items-center justify-between">
+                                    <div className="text-sm font-medium text-gray-500">Total Affiliated Clubs</div>
+                                    <div className="text-2xl font-bold font-mono">{analyticsData.total_clubs}</div>
+                                </div>
+                                <div className="p-4 border rounded-lg bg-gray-50 flex items-center justify-between">
+                                    <div className="text-sm font-medium text-gray-500">Total Hosted Events</div>
+                                    <div className="text-2xl font-bold font-mono">{analyticsData.total_events}</div>
+                                </div>
+                                <div className="p-4 border rounded-lg bg-gray-50 flex items-center justify-between">
+                                    <div className="text-sm font-medium text-gray-500">Total Ecosystem Followers</div>
+                                    <div className="text-2xl font-bold font-mono">{analyticsData.total_followers}</div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="text-center py-4 text-destructive">
+                                Failed to load analytics data.
+                            </div>
+                        )}
+                    </div>
+                    <DialogFooter>
+                        <Button type="button" onClick={() => setAnalyticsOrgId(null)} className="bg-[#2C333D] text-[#F9FFA1]">Close</Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>
