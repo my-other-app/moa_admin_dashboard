@@ -11,6 +11,9 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Search, Edit, Trash2, Plus, Image as ImageIcon } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 export function AvatarsList() {
     const [search, setSearch] = useState("");
@@ -21,45 +24,57 @@ export function AvatarsList() {
     const updateMutation = useUpdateAvatar();
     const deleteMutation = useDeleteAvatar();
 
+    // Modal States
+    const [isAddOpen, setIsAddOpen] = useState(false);
+    const [addForm, setAddForm] = useState<{ name: string, file: File | null }>({ name: "", file: null });
+
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [editForm, setEditForm] = useState<{ id: number, name: string, file: File | null }>({ id: 0, name: "", file: null });
+
     const filteredAvatars = avatars?.filter((avatar: any) =>
         avatar.name.toLowerCase().includes(search.toLowerCase())
     ) || [];
 
-    const handleCreate = () => {
-        const title = prompt("Enter avatar name:");
-        if (!title) return;
+    const handleCreateSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!addForm.name || !addForm.file) {
+            toast.error("Both name and an image file are required.");
+            return;
+        }
 
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
-        input.onchange = (e: any) => {
-            const file = e.target.files[0];
-            if (file) {
-                createMutation.mutate({ name: title, file });
+        toast.loading("Uploading avatar...", { id: "createAvatar" });
+        createMutation.mutate(
+            { name: addForm.name, file: addForm.file },
+            {
+                onSuccess: () => {
+                    toast.success("Avatar created successfully!", { id: "createAvatar" });
+                    setIsAddOpen(false);
+                    setAddForm({ name: "", file: null });
+                },
+                onError: () => toast.error("Failed to create avatar.", { id: "createAvatar" })
             }
-        };
-        input.click();
+        );
     };
 
-    const handleUpdate = (id: number, currentName: string) => {
-        const title = prompt("Enter new avatar name (leave empty to keep current):", currentName);
-        if (title === null) return;
+    const openEditModal = (avatar: any) => {
+        setEditForm({ id: avatar.id, name: avatar.name, file: null });
+        setIsEditOpen(true);
+    };
 
-        const action = prompt("Type '1' to update only name, '2' to update name and image.");
-        if (action === '1') {
-            updateMutation.mutate({ id, name: title || undefined });
-        } else if (action === '2') {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.onchange = (e: any) => {
-                const file = e.target.files[0];
-                if (file) {
-                    updateMutation.mutate({ id, name: title || undefined, file });
-                }
-            };
-            input.click();
-        }
+    const handleEditSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        toast.loading("Updating avatar...", { id: "updateAvatar" });
+
+        updateMutation.mutate(
+            { id: editForm.id, name: editForm.name || undefined, file: editForm.file || undefined },
+            {
+                onSuccess: () => {
+                    toast.success("Avatar updated successfully!", { id: "updateAvatar" });
+                    setIsEditOpen(false);
+                },
+                onError: () => toast.error("Failed to update avatar.", { id: "updateAvatar" })
+            }
+        );
     };
 
     return (
@@ -72,7 +87,7 @@ export function AvatarsList() {
                     </p>
                 </div>
                 <div className="flex space-x-2">
-                    <Button onClick={handleCreate} className="bg-[#2C333D] text-[#F9FFA1] hover:bg-[#3A4556]">
+                    <Button onClick={() => setIsAddOpen(true)} className="bg-[#2C333D] text-[#F9FFA1] hover:bg-[#3A4556]">
                         <Plus className="h-4 w-4 mr-2" /> Add Avatar
                     </Button>
                 </div>
@@ -127,7 +142,7 @@ export function AvatarsList() {
                                         <TableCell className="font-medium">#{avatar.id}</TableCell>
                                         <TableCell>
                                             {avatar.image ? (
-                                                <img src={avatar.image.bytes || avatar.image.filename} alt={avatar.name} className="h-12 w-12 rounded-full object-cover border" />
+                                                <img src={typeof avatar.image === 'string' ? avatar.image : (avatar.image?.thumbnail || avatar.image?.original || avatar.image?.url || '')} alt={avatar.name} className="h-12 w-12 rounded-full object-cover border" />
                                             ) : (
                                                 <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center border text-gray-500">
                                                     <ImageIcon className="h-5 w-5" />
@@ -141,7 +156,7 @@ export function AvatarsList() {
                                                 size="sm"
                                                 className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                                                 title="Edit"
-                                                onClick={() => handleUpdate(avatar.id, avatar.name)}
+                                                onClick={() => openEditModal(avatar)}
                                             >
                                                 <Edit className="h-4 w-4" />
                                             </Button>
@@ -152,7 +167,11 @@ export function AvatarsList() {
                                                 disabled={deleteMutation.isPending}
                                                 onClick={() => {
                                                     if (window.confirm(`Are you sure you want to delete ${avatar.name}?`)) {
-                                                        deleteMutation.mutate(avatar.id);
+                                                        toast.loading("Deleting avatar...", { id: "delAvatar" });
+                                                        deleteMutation.mutate(avatar.id, {
+                                                            onSuccess: () => toast.success("Avatar deleted", { id: "delAvatar" }),
+                                                            onError: () => toast.error("Failed to delete", { id: "delAvatar" })
+                                                        });
                                                     }
                                                 }}
                                                 title="Delete"
@@ -167,6 +186,51 @@ export function AvatarsList() {
                     </Table>
                 </div>
             </div>
+            {/* Add Avatar Modal */}
+            <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Add New Avatar</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleCreateSubmit} className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="name">Avatar Name</Label>
+                            <Input id="name" required value={addForm.name} onChange={e => setAddForm({ ...addForm, name: e.target.value })} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="file">Avatar Image</Label>
+                            <Input id="file" type="file" required accept="image/*" onChange={e => setAddForm({ ...addForm, file: e.target.files?.[0] || null })} />
+                        </div>
+                        <DialogFooter className="mt-6">
+                            <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>Cancel</Button>
+                            <Button type="submit" disabled={createMutation.isPending} className="bg-[#2C333D] text-[#F9FFA1]">Save Avatar</Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Edit Avatar Modal */}
+            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Edit Avatar</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleEditSubmit} className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="edit-name">Avatar Name</Label>
+                            <Input id="edit-name" required value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="edit-file">Update Image (Optional)</Label>
+                            <Input id="edit-file" type="file" accept="image/*" onChange={e => setEditForm({ ...editForm, file: e.target.files?.[0] || null })} />
+                        </div>
+                        <DialogFooter className="mt-6">
+                            <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)}>Cancel</Button>
+                            <Button type="submit" disabled={updateMutation.isPending} className="bg-[#2C333D] text-[#F9FFA1]">Update Avatar</Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

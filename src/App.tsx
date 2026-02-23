@@ -10,6 +10,7 @@ import { Settings } from "@/pages/Settings"
 import { Login } from "@/pages/Login"
 import { OrganizationsList } from "@/pages/OrganizationsList"
 import { AvatarsList } from "@/pages/AvatarsList"
+import { Toaster } from "@/components/ui/sonner"
 
 const queryClient = new QueryClient()
 
@@ -64,6 +65,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
+      <Toaster />
     </QueryClientProvider>
   )
 }

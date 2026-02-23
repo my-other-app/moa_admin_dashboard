@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useOrgs, useDeleteOrg, useBlockOrg, useImportOrgs } from "@/hooks/useOrgs";
+import { useOrgs, useDeleteOrg, useBlockOrg, useImportOrgs, useCreateOrg, useUpdateOrg } from "@/hooks/useOrgs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,14 +12,26 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Search, Edit, Trash2, ShieldBan, ShieldCheck, Plus, Upload } from "lucide-react";
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 export function OrganizationsList() {
     const [search, setSearch] = useState("");
 
     const { data: orgs, isLoading, isError } = useOrgs();
+    const createMutation = useCreateOrg();
+    const updateMutation = useUpdateOrg();
     const deleteMutation = useDeleteOrg();
     const blockMutation = useBlockOrg();
     const importMutation = useImportOrgs();
+
+    const [isAddOpen, setIsAddOpen] = useState(false);
+    const [addForm, setAddForm] = useState({ name: "", type: "College", email: "", phone: "", address: "", website: "" });
+    const [addLogo, setAddLogo] = useState<File | null>(null);
+
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [editForm, setEditForm] = useState<any>(null);
+    const [editLogo, setEditLogo] = useState<File | null>(null);
 
     const filteredOrgs = orgs?.filter((org: any) =>
         org.name.toLowerCase().includes(search.toLowerCase())
@@ -28,8 +40,69 @@ export function OrganizationsList() {
     const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            importMutation.mutate(file);
+            toast.loading("Importing organizations...", { id: "import" });
+            importMutation.mutate(file, {
+                onSuccess: () => {
+                    toast.success("Successfully imported organizations!", { id: "import" });
+                },
+                onError: () => {
+                    toast.error("Failed to import organizations.", { id: "import" });
+                }
+            });
+            e.target.value = "";
         }
+    };
+
+    const handleCreateSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        toast.loading("Creating organization...", { id: "createOrgs" });
+        const data: any = { ...addForm };
+        if (addLogo) data.logo = addLogo;
+
+        createMutation.mutate(data, {
+            onSuccess: () => {
+                toast.success("Organization created successfully", { id: "createOrgs" });
+                setIsAddOpen(false);
+                setAddForm({ name: "", type: "College", email: "", phone: "", address: "", website: "" });
+                setAddLogo(null);
+            },
+            onError: () => {
+                toast.error("Failed to create organization", { id: "createOrgs" });
+            }
+        });
+    };
+
+    const openEditModal = (org: any) => {
+        setEditForm({
+            id: org.id,
+            name: org.name || "",
+            type: org.type || "College",
+            email: org.email || "",
+            phone: org.phone || "",
+            address: org.address || "",
+            website: org.website || ""
+        });
+        setEditLogo(null);
+        setIsEditOpen(true);
+    };
+
+    const handleEditSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        toast.loading("Updating organization...", { id: "updateOrgs" });
+        const data: any = { ...editForm };
+        const id = data.id;
+        delete data.id; // remove id from payload
+        if (editLogo) data.logo = editLogo;
+
+        updateMutation.mutate({ id, data }, {
+            onSuccess: () => {
+                toast.success("Organization updated successfully", { id: "updateOrgs" });
+                setIsEditOpen(false);
+            },
+            onError: () => {
+                toast.error("Failed to update organization", { id: "updateOrgs" });
+            }
+        });
     };
 
     return (
@@ -49,7 +122,7 @@ export function OrganizationsList() {
                             <input type="file" accept=".csv,.xlsx" className="hidden" onChange={handleImport} disabled={importMutation.isPending} />
                         </label>
                     </Button>
-                    <Button className="bg-[#2C333D] text-[#F9FFA1] hover:bg-[#3A4556]">
+                    <Button onClick={() => setIsAddOpen(true)} className="bg-[#2C333D] text-[#F9FFA1] hover:bg-[#3A4556]">
                         <Plus className="h-4 w-4 mr-2" /> Add Org
                     </Button>
                 </div>
@@ -107,7 +180,7 @@ export function OrganizationsList() {
                                         <TableCell className="font-medium">#{org.id}</TableCell>
                                         <TableCell>
                                             {org.logo ? (
-                                                <img src={typeof org.logo === 'string' ? org.logo : org.logo.filename} alt={org.name} className="h-8 w-8 rounded-full object-cover" />
+                                                <img src={typeof org.logo === 'string' ? org.logo : (org.logo?.thumbnail || org.logo?.original || org.logo?.url || '')} alt={org.name} className="h-8 w-8 rounded-full object-cover" />
                                             ) : (
                                                 <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-500">
                                                     N/A
@@ -131,6 +204,7 @@ export function OrganizationsList() {
                                                 size="sm"
                                                 className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                                                 title="Edit"
+                                                onClick={() => openEditModal(org)}
                                             >
                                                 <Edit className="h-4 w-4" />
                                             </Button>
@@ -139,7 +213,13 @@ export function OrganizationsList() {
                                                 size="sm"
                                                 className={org.is_blocked ? "text-green-600 hover:text-green-700 hover:bg-green-50" : "text-orange-600 hover:text-orange-700 hover:bg-orange-50"}
                                                 disabled={blockMutation.isPending}
-                                                onClick={() => blockMutation.mutate(org.id)}
+                                                onClick={() => {
+                                                    toast.loading(`Toggling status for ${org.name}...`, { id: "blockOrg" });
+                                                    blockMutation.mutate(org.id, {
+                                                        onSuccess: () => toast.success("Status updated!", { id: "blockOrg" }),
+                                                        onError: () => toast.error("Failed to update status", { id: "blockOrg" })
+                                                    });
+                                                }}
                                                 title={org.is_blocked ? "Unblock" : "Block"}
                                             >
                                                 {org.is_blocked ? <ShieldCheck className="h-4 w-4" /> : <ShieldBan className="h-4 w-4" />}
@@ -151,7 +231,11 @@ export function OrganizationsList() {
                                                 disabled={deleteMutation.isPending}
                                                 onClick={() => {
                                                     if (window.confirm("Are you sure you want to delete this organization?")) {
-                                                        deleteMutation.mutate(org.id);
+                                                        toast.loading("Deleting...", { id: "delOrg" });
+                                                        deleteMutation.mutate(org.id, {
+                                                            onSuccess: () => toast.success("Organization deleted", { id: "delOrg" }),
+                                                            onError: () => toast.error("Failed to delete", { id: "delOrg" })
+                                                        });
                                                     }
                                                 }}
                                                 title="Delete"
@@ -166,6 +250,97 @@ export function OrganizationsList() {
                     </Table>
                 </div>
             </div>
+            {/* Add Org Modal */}
+            <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Add New Organization</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleCreateSubmit} className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="name">Organization Name</Label>
+                            <Input id="name" required value={addForm.name} onChange={e => setAddForm({ ...addForm, name: e.target.value })} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="type">Organization Type</Label>
+                            <select id="type" className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm" value={addForm.type} onChange={e => setAddForm({ ...addForm, type: e.target.value })}>
+                                <option value="School">School</option>
+                                <option value="College">College</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input id="email" type="email" value={addForm.email} onChange={e => setAddForm({ ...addForm, email: e.target.value })} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="phone">Phone</Label>
+                                <Input id="phone" value={addForm.phone} onChange={e => setAddForm({ ...addForm, phone: e.target.value })} />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="address">Address</Label>
+                            <Input id="address" value={addForm.address} onChange={e => setAddForm({ ...addForm, address: e.target.value })} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="logo">Logo Image</Label>
+                            <Input id="logo" type="file" accept="image/*" onChange={e => setAddLogo(e.target.files?.[0] || null)} />
+                        </div>
+                        <DialogFooter className="mt-6">
+                            <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>Cancel</Button>
+                            <Button type="submit" disabled={createMutation.isPending} className="bg-[#2C333D] text-[#F9FFA1]">Save Organization</Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Edit Org Modal */}
+            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Edit Organization</DialogTitle>
+                    </DialogHeader>
+                    {editForm && (
+                        <form onSubmit={handleEditSubmit} className="space-y-4 py-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="edit-name">Organization Name</Label>
+                                <Input id="edit-name" required value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="edit-type">Organization Type</Label>
+                                <select id="edit-type" className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm" value={editForm.type} onChange={e => setEditForm({ ...editForm, type: e.target.value })}>
+                                    <option value="School">School</option>
+                                    <option value="College">College</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="edit-email">Email</Label>
+                                    <Input id="edit-email" type="email" value={editForm.email} onChange={e => setEditForm({ ...editForm, email: e.target.value })} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="edit-phone">Phone</Label>
+                                    <Input id="edit-phone" value={editForm.phone} onChange={e => setEditForm({ ...editForm, phone: e.target.value })} />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="edit-address">Address</Label>
+                                <Input id="edit-address" value={editForm.address} onChange={e => setEditForm({ ...editForm, address: e.target.value })} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="edit-logo">Update Logo Image (Optional)</Label>
+                                <Input id="edit-logo" type="file" accept="image/*" onChange={e => setEditLogo(e.target.files?.[0] || null)} />
+                            </div>
+                            <DialogFooter className="mt-6">
+                                <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)}>Cancel</Button>
+                                <Button type="submit" disabled={updateMutation.isPending} className="bg-[#2C333D] text-[#F9FFA1]">Update Organization</Button>
+                            </DialogFooter>
+                        </form>
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
