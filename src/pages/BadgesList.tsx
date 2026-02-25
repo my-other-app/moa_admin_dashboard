@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAdminBadges, useCreateBadge, useUpdateBadge } from "@/hooks/useBadges";
-import { BadgeAdmin, BadgeCreateData, BadgeUpdateData } from "@/api/badges";
+import { BadgeAdmin, BadgeCreateData } from "@/api/badges";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
