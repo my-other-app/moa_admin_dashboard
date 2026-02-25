@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAdminBadges, useCreateBadge, useUpdateBadge } from "@/hooks/useBadges";
 import { BadgeAdmin, BadgeCreateData, BadgeUpdateData } from "@/api/badges";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, Edit, Plus } from "lucide-react";
+import { Search, Edit, Plus, Eye } from "lucide-react";
 import { toast } from "sonner";
 import {
     Dialog,
@@ -23,6 +24,7 @@ import {
 import { Label } from "@/components/ui/label";
 
 export function BadgesList() {
+    const navigate = useNavigate();
     const [search, setSearch] = useState("");
     const { data: badges, isLoading, isError } = useAdminBadges();
 
@@ -179,6 +181,9 @@ export function BadgesList() {
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="text-right sticky right-0 bg-card z-10 shadow-[-1px_0_0_#e2e8f0]">
+                                            <Button variant="ghost" size="icon" onClick={() => navigate(`/badges/${badge.id}`)} title="View analytics">
+                                                <Eye className="h-4 w-4" />
+                                            </Button>
                                             <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(badge)}>
                                                 <Edit className="h-4 w-4" />
                                             </Button>

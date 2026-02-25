@@ -11,6 +11,7 @@ import { Login } from "@/pages/Login"
 import { OrganizationsList } from "@/pages/OrganizationsList"
 import { AvatarsList } from "@/pages/AvatarsList"
 import { BadgesList } from "@/pages/BadgesList"
+import { BadgeDetail } from "@/pages/BadgeDetail"
 import { Toaster } from "@/components/ui/sonner"
 
 const queryClient = new QueryClient()
@@ -58,6 +59,11 @@ function App() {
             <Route path="/badges" element={
               <DashboardLayout>
                 <BadgesList />
+              </DashboardLayout>
+            } />
+            <Route path="/badges/:id" element={
+              <DashboardLayout>
+                <BadgeDetail />
               </DashboardLayout>
             } />
             <Route path="/settings" element={
