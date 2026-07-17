@@ -27,18 +27,7 @@ export const fetchDashboardStats = async (): Promise<DashboardStats> => {
         eventsHostedDelta: data.events_hosted_delta || "+0 this month",
         totalRevenue: data.platform_revenue || 0,
         totalRevenueDelta: data.platform_revenue_delta || "+0% from last month",
-        revenueData: [
-            { name: "Jan", total: 1500 },
-            { name: "Feb", total: 2300 },
-            { name: "Mar", total: 3400 },
-            { name: "Apr", total: 2900 },
-            { name: "May", total: 5600 },
-            { name: "Jun", total: 4800 },
-            { name: "Jul", total: 6100 },
-            { name: "Aug", total: 7200 },
-            { name: "Sep", total: 8500 },
-            { name: "Oct", total: 9400 },
-        ],
+        revenueData: data.revenue_data || [],
         userGrowthData: data.user_growth_data || [],
     };
 };

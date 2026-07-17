@@ -3,15 +3,14 @@ import apiClient from "./client";
 export interface EventInfo {
     id: number;
     name: string;
-    description: string;
     event_datetime: string;
     location_name: string;
-    status: "published" | "draft" | "cancelled";
+    is_deleted: boolean;
     club: {
         id: number;
         name: string;
         slug: string;
-    };
+    } | null;
     interests?: {
         id: number;
         name: string;

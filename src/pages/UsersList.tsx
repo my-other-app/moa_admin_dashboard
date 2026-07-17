@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useUsers } from "@/hooks/useUsers";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,26 +19,17 @@ export function UsersList() {
     const [page, setPage] = useState(1);
     const [size, setSize] = useState(10);
     const [search, setSearch] = useState("");
-    const [debouncedSearch, setDebouncedSearch] = useState("");
+    const debouncedSearch = useDebouncedValue(search, 500);
 
     const { data, isLoading, isError } = useUsers(page, size, debouncedSearch);
 
-    // Debounce search input to avoid spamming the API
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value);
         setPage(1); // Reset to page 1 on new search
-
-        // Simple debounce equivalent
-        setTimeout(() => {
-            if (e.target.value === search) {
-                setDebouncedSearch(e.target.value);
-            }
-        }, 500);
     };
 
     const handleSearchSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setDebouncedSearch(search);
     };
 
     return (

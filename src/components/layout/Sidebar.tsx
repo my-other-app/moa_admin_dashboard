@@ -1,5 +1,6 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LayoutDashboard, Users, Building2, CalendarSync, Settings, LogOut, Briefcase, Image as ImageIcon, Award } from "lucide-react";
+import useAuthStore from "@/store/authStore";
 
 const navigation = [
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -14,6 +15,13 @@ const navigation = [
 
 export function Sidebar() {
     const location = useLocation();
+    const navigate = useNavigate();
+    const logout = useAuthStore((state) => state.logout);
+
+    const handleLogout = () => {
+        logout();
+        navigate("/login");
+    };
 
     const getButtonClasses = (path: string) => {
         // Base route exact match, otherwise prefix match
@@ -46,6 +54,7 @@ export function Sidebar() {
             <button
                 className="w-11 h-11 rounded-full flex items-center justify-center cursor-pointer transition-colors bg-[#4A5568] text-white hover:bg-red-500"
                 title="Logout"
+                onClick={handleLogout}
             >
                 <LogOut size={20} />
             </button>

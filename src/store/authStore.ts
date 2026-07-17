@@ -49,8 +49,11 @@ const useAuthStore = create<AuthState>()(
                         throw new Error("Invalid login response");
                     }
                 } catch (error: any) {
-                    // Normalize standard HTTP 401s from the FastAPI backend into human readable validation errors
-                    const errMessage = error.response?.data?.detail?.message || error.response?.data?.detail || "Invalid credentials.";
+                    if (error.response?.status === 429) {
+                        throw new Error("Too many login attempts. Please wait a moment and try again.");
+                    }
+                    // Backend returns a flat { message, errors, error_code, track_id } shape, not nested under `detail`
+                    const errMessage = error.response?.data?.message || "Invalid credentials.";
                     throw new Error(errMessage);
                 }
             },

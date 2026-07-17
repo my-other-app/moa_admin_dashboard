@@ -1,6 +1,7 @@
 import axios from "axios";
+import useAuthStore from "@/store/authStore";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://api.myotherapp.com"; // Fallback for env missing
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://api.finnet.app"; // Fallback for env missing
 
 const apiClient = axios.create({
     baseURL: API_BASE_URL,
@@ -9,11 +10,10 @@ const apiClient = axios.create({
     },
 });
 
-// Interceptor to inject the admin bearer token
+// Interceptor to inject the admin bearer token from the Zustand-persisted auth store
 apiClient.interceptors.request.use(
     (config) => {
-        // In a real app, this might come from Zustand state or standard localStorage
-        const token = localStorage.getItem("admin_access_token");
+        const token = useAuthStore.getState().token;
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -29,9 +29,7 @@ apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            console.error("Admin unauthorized. Logging out...");
-            // Handle logout logic, like Zustand store reset and redirect to /login
-            localStorage.removeItem("admin_access_token");
+            useAuthStore.getState().logout();
             window.location.href = "/login";
         }
         return Promise.reject(error);

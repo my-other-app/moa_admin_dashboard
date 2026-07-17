@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useEvents, useCancelEvent } from "@/hooks/useEvents";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +18,7 @@ export function EventsList() {
     const [page, setPage] = useState(1);
     const [size, setSize] = useState(10);
     const [search, setSearch] = useState("");
-    const [debouncedSearch, setDebouncedSearch] = useState("");
+    const debouncedSearch = useDebouncedValue(search, 500);
 
     const { data, isLoading, isError } = useEvents(page, size, debouncedSearch);
     const cancelMutation = useCancelEvent();
@@ -25,16 +26,10 @@ export function EventsList() {
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value);
         setPage(1);
-        setTimeout(() => {
-            if (e.target.value === search) {
-                setDebouncedSearch(e.target.value);
-            }
-        }, 500);
     };
 
     const handleSearchSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setDebouncedSearch(search);
     };
 
     return (
@@ -111,11 +106,9 @@ export function EventsList() {
                                             {event.location_name}
                                         </TableCell>
                                         <TableCell>
-                                            <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${event.status === "published" ? "border-green-500 text-green-600" :
-                                                event.status === "cancelled" ? "border-red-500 text-red-600" :
-                                                    "border-muted text-muted-foreground"
+                                            <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${event.is_deleted ? "border-red-500 text-red-600" : "border-green-500 text-green-600"
                                                 }`}>
-                                                {event.status.toUpperCase()}
+                                                {event.is_deleted ? "CANCELLED" : "PUBLISHED"}
                                             </span>
                                         </TableCell>
                                         <TableCell>
@@ -150,7 +143,7 @@ export function EventsList() {
                                                 variant="ghost"
                                                 size="icon"
                                                 className="text-destructive hover:text-destructive hover:bg-red-50"
-                                                disabled={cancelMutation.isPending || event.status === "cancelled"}
+                                                disabled={cancelMutation.isPending || event.is_deleted}
                                                 onClick={() => {
                                                     if (confirm("Are you sure you want to cancel this event? This action will refund all tickets.")) {
                                                         cancelMutation.mutate(event.id);

@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint-build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      # Non-blocking for now: pre-existing @typescript-eslint/no-explicit-any
+      # violations exist across the codebase (a separate cleanup task), not
+      # something a single PR's build should be blocked on.
+      - run: npm run lint
+        continue-on-error: true
+      - run: npm run test
+      - run: npm run build

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useClubs, useApproveClub } from "@/hooks/useClubs";
+import { useClubs, useApproveClub, useRejectClub } from "@/hooks/useClubs";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,25 +18,20 @@ export function ClubsList() {
     const [page, setPage] = useState(1);
     const [size, setSize] = useState(10);
     const [search, setSearch] = useState("");
-    const [debouncedSearch, setDebouncedSearch] = useState("");
+    const debouncedSearch = useDebouncedValue(search, 500);
 
     // Pending status filter could be added via dropdown, but listing all for now
     const { data, isLoading, isError } = useClubs(page, size, debouncedSearch);
     const approveMutation = useApproveClub();
+    const rejectMutation = useRejectClub();
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value);
         setPage(1);
-        setTimeout(() => {
-            if (e.target.value === search) {
-                setDebouncedSearch(e.target.value);
-            }
-        }, 500);
     };
 
     const handleSearchSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setDebouncedSearch(search);
     };
 
     return (
@@ -147,6 +143,12 @@ export function ClubsList() {
                                                 variant="outline"
                                                 size="sm"
                                                 className="text-destructive hover:text-destructive hover:bg-red-50"
+                                                disabled={rejectMutation.isPending}
+                                                onClick={() => {
+                                                    if (confirm("Are you sure you want to reject/ban this club? This action cannot be undone.")) {
+                                                        rejectMutation.mutate(club.id);
+                                                    }
+                                                }}
                                                 title="Reject / Ban"
                                             >
                                                 <ShieldBan className="h-4 w-4" />
