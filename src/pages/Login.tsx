@@ -58,7 +58,7 @@ export function Login() {
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F9FFA1] focus:border-[#2C333D] transition-all bg-gray-50 focus:bg-white"
-                            placeholder="admin@myotherapp.com"
+                            placeholder="admin@myotherapp.in"
                             required
                             disabled={isLoading}
                         />
